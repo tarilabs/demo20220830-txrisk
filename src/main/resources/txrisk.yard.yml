@@ -1,0 +1,77 @@
+specVersion: alpha
+kind: YaRD
+name: txrisk
+inputs:
+- name: 'Age'
+  type: number
+- name: 'Incident Count'
+  type: number
+- name: 'Cardholder Status'
+  type: string
+- name: 'Transaction Amount'
+  type: number
+elements:
+- name: 'Cardholder Risk Points'
+  type: Decision
+  logic: 
+    type: DecisionTable
+    inputs: ['Incident Count', 'Cardholder Status', 'Age']
+    hitPolicy: COLLECT
+    rules:
+    - when: ['>3', '"PLATINUM"', '-']
+      then: 1
+    - when: ['>2', '"GOLD"', '-']
+      then: 1
+    - when: ['>2', '"SILVER"', '-']
+      then: 2
+    - when: ['>2', '"STANDARD"', '-']
+      then: 3
+    - when: ['-', '"SILVER"', '<25']
+      then: 1
+    - when: ['-', '"STANDARD"', '<25']
+      then: 2
+    - when: ['-', '"STANDARD"', '>=25']
+      then: 1
+    - when: ['-', '-', '-']
+      then: 0
+- name: 'Cardholder Risk Rating'
+  type: Decision
+  logic:
+    type: LiteralExpression
+    expression: 'sum(Cardholder Risk Points)'
+- name: 'Transaction Risk Rating'
+  type: Decision
+  logic: 
+    type: DecisionTable
+    inputs: ['Cardholder Status', 'Transaction Amount']
+    rules:
+    - when: ['"STANDARD"', '<25']
+      then: 1
+    - when: ['"SILVER"', '<50']
+      then: 1
+    - when: ['"GOLD"', '<75']
+      then: 1
+    - when: ['"PLATINUM"', '<100']
+      then: 1
+    - when: ['"STANDARD"', '[25..150)']
+      then: 3
+    - when: ['"SILVER"', '[50..150)']
+      then: 2
+    - when: ['"GOLD"', '[75..150)']
+      then: 2
+    - when: ['"PLATINUM"', '[100..150)']
+      then: 2
+    - when: ['"STANDARD"', '[150..200)']
+      then: 4
+    - when: ['"SILVER"', '[150..200)']
+      then: 3
+    - when: ['"GOLD"', '[150..200)']
+      then: 2
+    - when: ['-', '>=200']
+      then: 5
+- name: 'Block Automatic Processing'
+  type: Decision
+  logic:
+    type: LiteralExpression
+    expression: 'Cardholder Risk Rating + Transaction Risk Rating > 5'
+---
