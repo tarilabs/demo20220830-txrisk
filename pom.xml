@@ -88,7 +88,7 @@
             <goals>
               <goal>run</goal>
             </goals>
-            <configuration>
+            <configuration> <!-- requires https://github.com/kiegroup/yard -->
                 <script>convert.java</script>
             </configuration>
           </execution>

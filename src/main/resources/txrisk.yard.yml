@@ -73,5 +73,5 @@ elements:
   type: Decision
   logic:
     type: LiteralExpression
-    expression: 'Cardholder Risk Rating + Transaction Risk Rating > 5'
+    expression: 'Cardholder Risk Rating + Transaction Risk Rating >= 5'
 ---
